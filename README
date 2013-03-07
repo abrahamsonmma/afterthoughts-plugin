@@ -1,0 +1,37 @@
+Afterthoughts
+Created by Mike Abrahamson, St. Edward's University
+
+Compatible with Omeka 2.0
+Latest version tested: Omeka 2.0.1
+
+The Afterthoughts Plugin works by creating a new field in the ElementTexts
+table for each item based on the original filenames you give it.
+It was originally designed to be used directly after using the Dropbox plugin.
+
+Basic Operation:
+
+Type or Copy and Paste a list of original filenames into the textbox.
+Select your Metadata field you would like to add.
+Enter your metadata.
+Check if it should be interpreted as HTML.  Current version does not give the
+HTML editor when checked, but does pass the value to the table.
+Click the Apply Metadata button.
+
+How It Works:
+
+The plugin will now take each filename and attempt to find it in the database.
+Once found, it will verify that there is only one item for that filename.
+If there are multiple items, it will not upload any data and will add that
+filename to the log to report later.
+If it cannot find the filename, it will not upload any data and will add that
+filename to the log to report later.
+If it successfully finds the filename, it will find the item_id and then
+add the item to the ElementTexts table with that item_id.  It also logs the
+filename in the success message to report later.
+Once all files have been looked at, it will return to the Afterthoughts page
+and display all successes and errors.
+
+Known Issues:
+
+Currently, the record_type is set to "Item" for all entries.
+The metadata selector can be fairly cumbersome if you have a lot of fields.
