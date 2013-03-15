@@ -10,10 +10,6 @@
  *
  * @package Afterthoughts
  */
-class NotFoundException extends Exception{};
-
-class MultiException extends Exception{};
-
 class Afterthoughts_IndexController extends Omeka_Controller_AbstractActionController
 {
     /**
@@ -62,8 +58,7 @@ class Afterthoughts_IndexController extends Omeka_Controller_AbstractActionContr
 		
 		//loop through filenames and insert data into ElementText
 		for($i=0;$i<count($filenames);$i++) {
-			
-			try {
+
 				//retrieve current filename
 				$filename = $filenames[$i];
 				
@@ -72,41 +67,31 @@ class Afterthoughts_IndexController extends Omeka_Controller_AbstractActionContr
 				get_db()->getTable('File')->findBy(array('original_filename'=>$filenames[$i]));
 				
 				if (empty($records)){
-					throw new NotFoundException();
+					$fileNotFound [] = $filenames[$i];
 					}
+				
 				if ($records[1]){
-					throw new MultiException();
+					$multiFile[] = $filenames[$i];
 					}
+					
+				if (1==count($records))
+				{		
+					//get item_id from File table
+					$id = $records[0]['item_id'];
+					
+					//check for existing data (Need to add options to catch existing data fields)
+					$elements = get_db()->getTable('ElementText')->findBy(array('item_id'=>$id));
+					
+					//build array of data
+					$data = array('record_id' => $id, 'record_type' => 'item', 'element_id' => $elementid, 'html' => $html, 'text' => $textinput);
+					
+						//insert data into ElementText table
+						if ($data){
+						get_db()->insert('ElementText',$data);
+						}
+						$successMessage = $successMessage.$filenames[$i]." updated successfully!\r\n";
+				}
 						
-				//get item_id from File table
-				$id = $records[0]['item_id'];
-				
-				//check for existing data (Need to add options to catch existing data fields)
-				$elements = get_db()->getTable('ElementText')->findBy(array('item_id'=>$id));
-				
-				//build array of data
-				$data = array('record_id' => $id, 'record_type' => 'item', 'element_id' => $elementid, 'html' => $html, 'text' => $textinput);
-				
-					//insert data into ElementText table
-					if ($data){
-					get_db()->insert('ElementText',$data);
-					}
-					$successMessage = $successMessage.$filenames[$i]." updated successfully!\r\n";
-				}
-			
-			catch (NotFoundException $e){
-				$fileNotFound [] = $filenames[$i];
-				}
-			
-			catch (MultiException $e){
-				$multiFile[] = $filenames[$i];
-				}
-			
-			catch (Exception $e){
-				$message = $this->_helper->flashMessenger($e->getMessage());
-				$this->_helper->redirector('index');
-				}
-			
 			//make absolutely sure it's cleared out of memory
 			unset($records);
 			
